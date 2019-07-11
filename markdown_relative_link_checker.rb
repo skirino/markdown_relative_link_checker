@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require 'set'
 require 'cgi'
@@ -37,8 +38,29 @@ class MarkdownFile
     @rel_links    = @content_lines.flat_map.with_index(1) { |l, i| line_to_relative_links(l, i) }
   end
 
+  def remove_link(str)
+    removed_str = ""
+    in_bracket = false
+    in_parenthesis = false
+    str.split("").each do |c|
+      if !in_bracket and !in_parenthesis and c == "["
+        in_bracket = true
+      elsif in_bracket and !in_parenthesis and c == "]"
+      elsif in_bracket and !in_parenthesis and c == "("
+        in_bracket = false
+        in_parenthesis = true
+      elsif !in_bracket and in_parenthesis and c == ")"
+        in_parenthesis = false
+      elsif !in_parenthesis
+        removed_str += c
+      end
+    end
+    removed_str
+  end
+
   def line_to_section_url(l)
-    section_name = l.sub(/^#+ /, '').downcase.gsub(' ', '-').gsub(/[!-,:-@\[-\^{-~.\/`]/, '')
+    section_name = remove_link(l)
+    section_name = section_name.sub(/^#+ /, '').downcase.gsub(' ', '-').gsub(/[!-,:-@\[-\^{-~.\/`]/, '')
     @path + '#' + CGI.escape(section_name)
   end
 
