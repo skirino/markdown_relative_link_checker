@@ -39,6 +39,7 @@ class MarkdownFile
 
   def line_to_section_url(l)
     section_name = l.sub(/^#+ /, '').downcase.gsub(' ', '-').gsub(/[!-,:-@\[-\^{-~.\/`]/, '')
+    section_name = section_name.gsub('、', '').gsub('「', '').gsub('」', '')
     @path + '#' + CGI.escape(section_name)
   end
 
